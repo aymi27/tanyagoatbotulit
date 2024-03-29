@@ -1,7 +1,7 @@
 {
   "facebookAccount": {
-    "email": "",
-    "password": "",
+    "email": "yoyamerch+19@yandex.ru",
+    "password": "tanya0528",
     "2FASecret": "",
     "i_user": "",
     "proxy": ,
@@ -17,7 +17,8 @@
     "ignoreCommand": []
   },
   "adminBot": [
-    "100053549552408"
+    "100095262681590",
+    "100071118324739"
     
   ],
   "whiteListMode": {
@@ -29,8 +30,8 @@
   "AGE": "18",
   "GENDER": "FEMALE",
   "nickNameBot": "miya",
-  "FACEBOOK": "https://www.facebook.com/profile.php?id=61557535866828",
-  "prefix": "?",
+  "FACEBOOK": "https://www.facebook.com/100095262681590",
+  "prefix": "!",
   "database": {
     "type": "sqlite",
     "uriMongodb": "",
