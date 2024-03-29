@@ -7,7 +7,7 @@ config: {
   name: "owner",
   aurthor:"Tokodori",// Convert By Goatbot Tokodori 
    role: 0,
-  shortDescription: " ",
+  shortDescription: "Hi! I'm Yoya! the admin and creator of this bot! ",
   longDescription: "",
   category: "admin",
   guide: "{pn}"
@@ -16,12 +16,12 @@ config: {
   onStart: async function ({ api, event }) {
   try {
     const ownerInfo = {
-      name: 'Yazky Ai',
-      gender: 'Male',
-      age: 'Unknown',
+      name: 'YOYA',
+      gender: 'female',
+      age: '18',
       height: 'Unknown',
       facebookLink: 'stalk moko mwa',
-      nick: 'Yazky'
+      nick: 'Yoya'
     };
 
     const bold = 'https://i.imgur.com/DDO686J.mp4'; // Replace with your Google Drive videoid link https://drive.google.com/uc?export=download&id=here put your video id
