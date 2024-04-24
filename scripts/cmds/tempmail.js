@@ -1,64 +1,54 @@
-const { TempMail } = require("1secmail-api");
+const axios = require('axios');
 
-function generateRandomId() {
-		var length = 6;
-		var characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-		var randomId = '';
+module.exports.config = {
+  name: "tempmail",
+aliases: ["tm2"],
+  version: "1.0",
+  role: 0,
+  countdown: 5,
+  author: "kshitiz",
+  usePrefix: true,
+  description: "create tempmail",
+  category: "media",
+};
 
-		for (var i = 0; i < length; i++) {
-				randomId += characters.charAt(Math.floor(Math.random() * characters.length));
-		}
+const TEMP_MAIL_URL = 'https://tempmail-api.codersensui.repl.co/api/gen';
 
-		return randomId;
-}
+module.exports.onStart = async ({ api, event, args }) => {
+  try {
+    if (args[0] === 'inbox') {
+      if (!args[1]) {
+        return api.sendMessage("❌ Please provide an email address for the inbox.", event.threadID);
+      }
 
-module.exports = {
-		config: {
-				name: 'temp',
-				version: '2.1.0',
-				author: "Deku", // not change credits
-				countDown: 5,
-				role: 0,
-				shortDescription: 'Generate temporary email (auto get inbox)',
-				category: 'generate',
-				guide: {
-						en: '[tempmail]'
-				}
-		},
+      const emailAddress = args[1];
+      const inboxResponse = await axios.get(`https://tempmail-api.codersensui.repl.co/api/getmessage/${emailAddress}`);
+      const messages = inboxResponse.data.messages;
 
-		onStart: async function ({ api, event }) {
-				const reply = (msg) => api.sendMessage(msg, event.threadID, event.messageID);
+      if (!messages || messages.length === 0) {
+        return api.sendMessage(`No messages found for ${emailAddress}.`, event.threadID);
+      }
 
-				try {
-						// Generate temporary email
-						const mail = new TempMail(generateRandomId());
+      let messageText = '📬 Inbox Messages: 📬\n\n';
+      for (const message of messages) {
+        messageText += `📩 Sender: ${message.sender}\n`;
+        messageText += `👀 Subject: ${message.subject || '👉 NO SUBJECT'}\n`;
+        messageText += `📩 Message: ${message.message.replace(/<style([\s\S]*?)<\/style>|<script([\s\S]*?)<\/script>|<\/div>|<div>|<[^>]*>/gi, '')}\n\n`;
+      }
 
-						// Auto fetch
-						mail.autoFetch();
+      api.sendMessage(messageText, event.threadID);
+    } else {
+      const tempMailResponse = await axios.get(TEMP_MAIL_URL);
+      const tempMailData = tempMailResponse.data;
 
-						if (mail) reply("Your temporary email: " + mail.address);
+      if (!tempMailData.email) {
+        return api.sendMessage("❌ Failed to generate temporary email.", event.threadID);
+      }
 
-						// Fetch function
-						const fetch = () => {
-								mail.getMail().then((mails) => {
-										if (!mails[0]) {
-												return;
-										} else {
-												let b = mails[0];
-												var msg = `You have a message!\n\nFrom: ${b.from}\n\nSubject: ${b.subject}\n\nMessage: ${b.textBody}\nDate: ${b.date}`;
-												reply(msg + `\n\nOnce the email and message are received, they will be automatically deleted.`);
-												return mail.deleteMail();
-										}
-								});
-						};
-
-						// Auto fetch every 3 seconds
-						fetch();
-						setInterval(fetch, 3 * 1000);
-
-				} catch (err) {
-						console.error(err);
-						return reply(err.message);
-				}
-		}
+      api.sendMessage(`📩 Here's your generated temporary email: ${tempMailData.email}`, event.threadID);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    api.sendMessage("No messages found in the current email).", event.threadID);
+  }
 };
