@@ -21,7 +21,7 @@ module.exports = {
 		if (!prompt) return api.sendMessage(`Please enter a prompt.`, event.threadID);
 		api.sendTypingIndicator(event.threadID);
 		try {
-			const geminiApi = `https://gemini-api.replit.app`;
+			const geminiApi = `https://deku-rest-api.replit.app/gemini?prompt=hello&uid=100`;
 			if (event.type == "message_reply") {
 				if (event.messageReply.attachments[0]?.type == "photo") {
 					url = encodeURIComponent(event.messageReply.attachments[0].url);
