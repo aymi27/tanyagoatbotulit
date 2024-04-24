@@ -4,7 +4,7 @@ const path = require("path"); // Import the path module
 
 module.exports = {
   config: {
-    name: "remini",
+    name: "remini2",
     aliases: [],
     version: "1.0",
     author: "Who's Deku",
