@@ -111,7 +111,7 @@ function _0x1134() {
 				'u\x20a\x20questi',
 				'substring',
 				'st\x20to\x20answ',
-				'\x20🤖,\x20ask\x20yo',
+				'\x20🧜🏻‍♀️,\x20ask\x20yo',
 				'reply',
 				'on\x20and\x20I\x27l',
 				'trim',
