@@ -1,129 +1,282 @@
-const fs = require("fs-extra");
+const fs = require("fs-extra"); 
 const axios = require("axios");
 const path = require("path");
 const { getPrefix } = global.utils;
 const { commands, aliases } = global.GoatBot;
-const doNotDelete = "▀▀█▀▀ █▀▀█ █▀▀▄ █░░█ █▀▀█\n ░░█░░ █▄▄█ █░░█ █▄▄█ █▄▄█\n ░░▀░░ ▀░░▀ ▀░░▀ ▄▄▄█ ▀░░▀\n\n﹝ 🧜‍♀️ | 𝗧𝗔𝗡𝗬𝗔  ﹞";
+const doNotDelete ="〘🧜‍♀️〙| 𝗧𝗔𝗡𝗬𝗔 ";
+/** 
+* @author NTKhang
+* @author: do not delete it
+* @message if you delete or edit it you will get a global ban
+*/
 
 module.exports = {
-	config: {
-		name: "help",
-		version: "1.17",
-		author: "🍨𝗬𝗢𝗬𝗔🧜‍♀", // orginal author Kshitiz
-		countDown: 5,
-		role: 0,
-		shortDescription: {
-			en: "View command usage",
-		},
-		longDescription: {
-			en: "View command usage and list all commands directly",
-		},
-		category: "info",
-		guide: {
-			en: "{pn} / help cmdName ",
-		},
-		priority: 1,
-	},
+        config: {
+                name: "help",
+                version: "1.17",
+                author: "Aesther",
+                countDown: 5,
+                role: 0,
+                shortDescription: {
+                        vi: "Xem cách dùng lệnh",
+                        en: "View command usage"
+                },
+                longDescription: {
+                        vi: "Xem cách sử dụng của các lệnh",
+                        en: "View command usage"
+                },
+                category: "info",
+                guide: {
+                        vi: "   {pn} [để trống | <số trang> | <tên lệnh>]"
+                                + "\n   {pn} <command name> [-u | usage | -g | guide]: chỉ hiển thị phần hướng dẫn sử dụng lệnh"
+                                + "\n   {pn} <command name> [-i | info]: chỉ hiển thị phần thông tin về lệnh"
+                                + "\n   {pn} <command name> [-r | role]: chỉ hiển thị phần quyền hạn của lệnh"
+                                + "\n   {pn} <command name> [-a | alias]: chỉ hiển thị phần tên viết tắt của lệnh",
+                        en: "{pn} [empty | <page number> | <command name>]"
+                                + "\n   {pn} <command name> [-u | usage | -g | guide]: only show command usage"
+                                + "\n   {pn} <command name> [-i | info]: only show command info"
+                                + "\n   {pn} <command name> [-r | role]: only show command role"
+                                + "\n   {pn} <command name> [-a | alias]: only show command alias"
+                },
+                priority: 1
+        },
 
-	onStart: async function ({ message, args, event, threadsData, role }) {
-	const { threadID } = event;
-	const threadData = await threadsData.get(threadID);
-	const prefix = getPrefix(threadID);
+        langs: {
+                vi: {
+                        help: "▬▬▬▬▬〘🐰〙▬▬▬▬▬\n『%1』\n├─────〘🍥〙\n│ Trang [ %2/%3 ]\n│ Hiện tại bot có %4 lệnh có thể sử dụng\n│ » Gõ %5help <số trang> để xem danh sách các lệnh\n│ » Gõ %5help để xem chi tiết cách sử dụng lệnh đó\n├────────〘🐰〙\n│ %6\n╰─────────────〘🐰〙",
+                        attechment:fs.createReadStream("anjarara.jpg"),
+                        help2: "%1├───────〘🐰〙\n│ » Hiện tại bot có %2 lệnh có thể sử dụng\n│ » Gõ %3help <tên lệnh> để xem chi tiết cách sử dụng lệnh đó\n│ %4\n╰─────────────〘🐰〙",
+                        commandNotFound: "Lệnh \"%1\" không tồn tại",
+                        getInfoCommand: "╭── 𝐍𝐀𝐌𝐄 ────〘🐰〙\n│ %1\n├── 𝐈𝐍𝐅𝐎\n│ Mô tả: %2\n│ Các tên gọi khác: %3\n│ Các tên gọi khác trong nhóm bạn: %4\n│ Version: %5\n│ Role: %6\n│ Thời gian mỗi lần dùng lệnh: %7s\n│ Author: %8\n├── Usage\n│%9\n├── Notes\n│ Nội dung bên trong <XXXXX> là có thể thay đổi\n│ Nội dung bên trong [a|b|c] là a hoặc b hoặc c\n╰──────🐰●",
+                        onlyInfo: "╭── 𝐈𝐍𝐅𝐎 ────🐰●\n│ Tên lệnh: %1\n│ Mô tả: %2\n│ Các tên gọi khác: %3\n│ Các tên gọi khác trong nhóm bạn: %4\n│ Version: %5\n│ Role: %6\n│ Thời gian mỗi lần dùng lệnh: %7s\n│ Author: %8\n╰─────────────🐰●",
+                        onlyUsage: "╭── 𝐔𝐒𝐀𝐆𝐄 ────🐰●\n│%1\n╰─────────────🐰●",
+                        onlyAlias: "╭── 𝐀𝐋𝐈𝐀𝐒 ────🐰●\n│ Các tên gọi khác: %1\n│ Các tên gọi khác trong nhóm bạn: %2\n╰─────────────🐰●",
+                        onlyRole: "╭── 𝐑𝐎𝐋𝐄 ────🐰●\n│%1\n╰─────────────🐰●",
+                        doNotHave: "Không có",
+                        roleText0: "0 (Tất cả người dùng)",
+                        roleText1: "1 (Quản trị viên nhóm)",
+                        roleText2: "2 (Admin bot)",
+                        roleText0setRole: "0 (set role, tất cả người dùng)",
+                        roleText1setRole: "1 (set role, quản trị viên nhóm)",
+                        pageNotFound: "Trang %1 không tồn tại"
+                },
+                en: {
+                        help: "▀▀█▀▀ █▀▀█ █▀▀▄ █░░█ █▀▀█\n ░░█░░ █▄▄█ █░░█ █▄▄█ █▄▄█\n ░░▀░░ ▀░░▀ ▀░░▀ ▄▄▄█ ▀░░▀\n\n﹝ 🧜‍♀️ | 𝗧𝗔𝗡𝗬𝗔  ﹞\n✨👾𝗖𝗥𝗘𝗔𝗧𝗢𝗥 : 𝚈𝙾𝚈𝙰 | 𝙰𝚈𝙼𝙸👾✨\n\n%1\n▬▬▬▬▬▬▬🍇▬▬▬▬▬▬▬\n 𝙿𝙰𝙶𝙴 [ %2/%3 ]\n〘🧜‍♀️〙𝙸 𝚑𝚊𝚟𝚎 𝙰𝚌𝚝𝚞𝚊𝚕𝚕𝚢 ﹝ %4 ﹞𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜\n〘🧜‍♀️〙 𝚃𝚈𝙿𝙴: %5𝚑𝚎𝚕𝚙 <𝙿𝙰𝙶𝙴> 𝚝𝚘 𝚝𝚑𝚎 𝚟𝚒𝚎𝚠 𝚕𝚒𝚜𝚝 𝚘𝚏 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜\n〘🧜‍♀️〙 » 𝚃𝚈𝙿𝙴: %5𝚑𝚎𝚕𝚙 𝚃𝚘 𝚝𝚑𝚎 𝚍𝚎𝚝𝚊𝚒𝚕𝚜 𝚘𝚏 𝚑𝚘𝚠 𝚝𝚘 𝚞𝚜𝚎 𝚝𝚑𝚎 𝙲𝚘𝚖𝚖𝚊𝚖𝚍\n▬▬▬▬▬▬▬🍇▬▬▬▬▬▬▬\n│ %6\n▬▬▬▬▬▬▬🍇▬▬▬▬▬▬▬",
+                        help2: "%1▬▬▬▬▬▬▬🍇▬▬▬▬▬▬▬\n》🧜‍♀️𝚃𝚑𝚎 𝚋𝚘𝚝 𝚑𝚊𝚜 〚%2〛 𝙲𝙼𝙳𝚜 𝚝𝚑𝚊𝚝 𝚢𝚘𝚞 𝙲𝚊𝚗 𝚄𝚜𝚎—\n》🧜‍♀️⊰⊹ 𝚃𝚈𝙿𝙴: %3help ⊹⊱ 𝚝𝚘 𝚟𝚒𝚎𝚠 𝚍𝚎𝚝𝚊𝚒𝚕𝚜 𝚘𝚏 𝙷𝚘𝚠 𝚝𝚘 𝚞𝚜𝚎 𝚃𝚑𝚊𝚝 𝙲𝚖𝚍𝚜\n▬▬▬▬▬▬▬🍇▬▬▬▬▬▬▬𝙱𝙾𝚃:\n%4\n▬▬▬▬▬▬▬🍇▬▬▬▬▬▬▬",
+                        commandNotFound: "𝙲𝙼𝙳 \"『%1』\" 𝙳𝚘𝚎𝚜𝚗'𝚝 𝙴𝚡𝚒𝚜𝚝",
+                        getInfoCommand: "▬▬▬〘🧜‍♀️𝗡𝗔𝗠𝗘🧜‍♀️〙▬▬▬〘🍇〙\n %1\n◉〘🧜‍♀️𝗜𝗡𝗙𝗢🧜‍♀️〙◉\n 👾 𝙳𝙴𝚂𝙲𝚁𝙸𝙿𝚃𝙸𝙾𝙽: %2\n 👾𝙾𝚃𝙷𝙴𝚁 𝙽𝙰𝙼𝙴𝚂: %3\n👾𝙾𝚃𝙷𝙴𝚁 𝙽𝙰𝙼𝙴𝚂 𝙸𝙽 𝚈𝙾𝚄𝚁 𝙶𝚁𝙾𝚄𝙿: %4\n👾𝚅𝙴𝚁𝚂𝙸𝙾𝙽: %5\n👾𝚁𝙾𝙻𝙴: %6\n👾𝚃𝙸𝙼𝙴 𝙿𝙴𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳: %7s\n👾𝙰𝚄𝚃𝙷𝙾𝚁: %8\n◉〘 🧜‍♀️𝗨𝗦𝗔𝗚𝗘🧜‍♀️〙◉\n%9\n◉〘🧜‍♀️𝗡𝗢𝗧𝗘𝗦🧜‍♀️〙◉\n│ 𝗍𝗁𝖾 𝖼𝗈𝗇𝗍𝖾𝗇𝗍 𝗂𝗇𝗌𝗂𝖽𝖾 <XXXXX> 𝖼𝖺𝗇 𝖻𝖾 𝖼𝗁𝖺𝗇𝗀𝖾𝖽\n│ 𝗍𝗁𝖾 𝖼𝗈𝗇𝗍𝖾𝗇𝗍 𝗂𝗇𝗌𝗂𝖽𝖾 [𝖺|𝖻|𝖼] 𝗂𝗌 𝖺 𝗈𝗋 𝖻 𝗈𝗋 𝖼\n╰──────〘🍇〙",
+                        onlyInfo: "▬▬▬〘🧜‍♀️𝗜𝗡𝗙𝗢🧜‍♀️〙▬▬▬〘🍇〙\n👾 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 𝗇𝖺𝗆𝖾: %1\n👾 𝖣𝖾𝗌𝖼𝗋𝗂𝗉𝗍𝗂𝗈𝗇: %2\n👾 𝖮𝗍𝗁𝖾𝗋 𝗇𝖺𝗆𝖾𝗌: %3\n👾 𝖮𝗍𝗁𝖾𝗋 𝗇𝖺𝗆𝖾𝗌 𝗂𝗇 𝗒𝗈𝗎𝗋 𝗀𝗋𝗈𝗎𝗉: %4\n👾 𝖵𝖾𝗋𝗌𝗂𝗈𝗇: %5\n👾 𝖱𝗈𝗅𝖾: %6\n👾 𝖳𝗂𝗆𝖾 𝗉𝖾𝗋 𝖼𝗈𝗆𝗆𝖺𝗇𝖽: %7s\n👾 𝖠𝗎𝗍𝗁𝗈𝗋: %8\n▬▬▬▬▬▬▬▬▬▬▬〘🍇〙",
+                        onlyUsage: "╭── 〘🧜‍♀️𝗨𝗦𝗔𝗚𝗘🧜‍♀️〙 ────〘🍇〙\n│%1\n╰─────────────〘🐰〙",
+                        onlyAlias: "╭── 〘🧜‍♀️𝗔𝗟𝗜𝗔𝗦🧜‍♀️〙────〘🍇〙\n│ 𝖮𝗍𝗁𝖾𝗋 𝗇𝖺𝗆𝖾𝗌: %1\n│ 𝖮𝗍𝗁𝖾𝗋 𝗇𝖺𝗆𝖾𝗌 𝗂𝗇 𝗒𝗈𝗎𝗋 𝗀𝗋𝗈𝗎𝗉: %2\n╰─────────────〘🍇〙",
+                        onlyRole: "╭── 〘🧜‍♀️𝗥𝗢𝗟𝗘🧜‍♀️〙────〘🍇〙\n│%1\n╰─────────────〘🍇〙",
+                        doNotHave: "𝖣𝗈 𝗇𝗈𝗍 𝗁𝖺𝗏𝖾",
+                        roleText0: "0 (𝖠𝗅𝗅 𝗎𝗌𝖾𝗋𝗌)",
+                        roleText1: "1 (𝖦𝗋𝗈𝗎𝗉 𝖺𝖽𝗆𝗂𝗇𝗂𝗌𝗍𝗋𝖺𝗍𝗈𝗋𝗌)",
+                        roleText2: "2 (𝖠𝖽𝗆𝗂𝗇 𝖻𝗈𝗍)",
+                        roleText0setRole: "0 (𝗌𝖾𝗍 𝗋𝗈𝗅𝖾, 𝖺𝗅𝗅 𝗎𝗌𝖾𝗋𝗌)",
+                        roleText1setRole: "1 (𝗌𝖾𝗍 𝗋𝗈𝗅𝖾, 𝗀𝗋𝗈𝗎𝗉 𝖺𝖽𝗆𝗂𝗇𝗂𝗌𝗍𝗋𝖺𝗍𝗈𝗋𝗌)",
+                        pageNotFound: "𝙿𝙰𝙶𝙴 %1 𝙳𝙾𝙴𝚂 𝙽𝙾𝚃 𝙴𝚇𝙸𝚂𝚃"
+                }
+        },
 
-	if (args.length === 0) {
-			const categories = {};
-			let msg = "";
+        onStart: async function ({ message, args, event, threadsData, getLang, role }) {
+                const langCode = await threadsData.get(event.threadID, "data.lang") || global.GoatBot.config.language;
+                let customLang = {};
+                const pathCustomLang = path.normalize(`${process.cwd()}/languages/cmds/${langCode}.js`);
+                if (fs.existsSync(pathCustomLang))
+                        customLang = require(pathCustomLang);
 
-			msg += `▀▀█▀▀ █▀▀█ █▀▀▄ █░░█ █▀▀█\n ░░█░░ █▄▄█ █░░█ █▄▄█ █▄▄█\n ░░▀░░ ▀░░▀ ▀░░▀ ▄▄▄█ ▀░░▀\n\n﹝ 🧜‍♀️ | 𝗧𝗔𝗡𝗬𝗔  ﹞`;
+                const { threadID } = event;
+                const threadData = await threadsData.get(threadID);
+                const prefix = getPrefix(threadID);
+                let sortHelp = threadData.settings.sortHelp || "name";
+                if (!["category", "name"].includes(sortHelp))
+                        sortHelp = "name";
+                const commandName = (args[0] || "").toLowerCase();
+                const command = commands.get(commandName) || commands.get(aliases.get(commandName));
 
-			for (const [name, value] of commands) {
-					if (value.config.role > 1 && role < value.config.role) continue;
+                // ———————————————— LIST ALL COMMAND ——————————————— //
+                if (!command && !args[0] || !isNaN(args[0])) {
+                        const arrayInfo = [];
+                        let msg = "";
+                        if (sortHelp == "name") {
+                                const page = parseInt(args[0]) || 1;
+                                const numberOfOnePage = 30;
+                                for (const [name, value] of commands) {
+                                        if (value.config.role > 1 && role < value.config.role)
+                                                continue;
+                                        let describe = name;
+                                        let shortDescription;
+                                        const shortDescriptionCustomLang = customLang[name]?.shortDescription;
+                                        if (shortDescriptionCustomLang != undefined)
+                                                shortDescription = checkLangObject(shortDescriptionCustomLang, langCode);
+                                        else if (value.config.shortDescription)
+                                                shortDescription = checkLangObject(value.config.shortDescription, langCode);
+                                        if (shortDescription)
+                                                describe += `:\n —  ${cropContent(shortDescription.charAt(0).toUpperCase() + shortDescription.slice(1))}`;
+                                        arrayInfo.push({
+                                                data: describe,
+                                                priority: value.priority || 0
+                                        });
+                                }
 
-					const category = value.config.category || "Uncategorized";
-					categories[category] = categories[category] || { commands: [] };
-					categories[category].commands.push(name);
-			}
-8
-			Object.keys(categories).forEach(category => {
-					if (category !== "info") {
-							msg += `\n╭────────────〘🧜‍♀️〙\n│『 ${category.toUpperCase()} 』`;
+                                arrayInfo.sort((a, b) => a.data - b.data); // sort by name
+                                arrayInfo.sort((a, b) => a.priority > b.priority ? -1 : 1); // sort by priority
+                                const { allPage, totalPage } = global.utils.splitPage(arrayInfo, numberOfOnePage);
+                                if (page < 1 || page > totalPage)
+                                        return message.reply(getLang("pageNotFound", page));
 
-							const names = categories[category].commands.sort();
-							for (let i = 0; i < names.length; i += 1) {
-									const cmds = names.slice(i, i + 1).map(item => `│🎀${item}🎀`);
-									msg += `\n${cmds.join(" ".repeat(Math.max(0, 5 - cmds.join("").length)))}`;
-							}
+                                const returnArray = allPage[page - 1] || [];
+                                const startNumber = (page - 1) * numberOfOnePage + 1;
+                                msg += (returnArray || []).reduce((text, item, index) => text += `✨🧜‍♀️ ${index + startNumber}${index + startNumber < 10 ? " " : ""}.○﹝🍇﹞${item.data}\n`, '').slice(0, -1);
+                                await message.reply(getLang("help", msg, page, totalPage, commands.size, prefix, doNotDelete));
+                        }
+                        else if (sortHelp == "category") {
+        let categoryCommands = new Map(); // Map to store commands by category
 
-							msg += `\n╰────────〘🧜‍♀️〙`;
-					}
-			});
+        for (const [name, value] of commands) {
+                if (value.config.role > 1 && role < value.config.role) {
+                        continue; // Skip commands the user doesn't have permission for.
+                }
 
-			const totalCommands = commands.size;
-			msg += `\n𝗖𝘂𝗿𝗿𝗲𝗻𝘁𝗹𝘆, 𝘁𝗵𝗲 𝗯𝗼𝘁 𝗵𝗮𝘀 ${totalCommands} 𝗰𝗼𝗺𝗺𝗮𝗻𝗱𝘀 𝘁𝗵𝗮𝘁 𝗰𝗮𝗻 𝗯𝗲 𝘂𝘀𝗲𝗱\n`;
-			msg += `𝗧𝘆𝗽𝗲 ${prefix} 𝗵𝗲𝗹𝗽 𝗰𝗺𝗱𝗡𝗮𝗺𝗲 𝘁𝗼 𝘃𝗶𝗲𝘄 𝘁𝗵𝗲 𝗱𝗲𝘁𝗮𝗶𝗹𝘀 𝗼𝗳 𝘁𝗵𝗮𝘁 𝗰𝗼𝗺𝗺𝗮𝗻𝗱\n`;
-			msg += `    █▓▒­░⡷🧜‍♀️𝗧𝗔𝗡𝗬𝗔🧜‍♀️⢾░▒▓█`;
+                const categoryName = value.config.category || "No Category";
+                const circularSymbol = "\n🐰"; // Add your desired circular symbol here
 
+                if (!categoryCommands.has(categoryName)) {
+                        categoryCommands.set(categoryName, []);
+                }
 
-			const helpListImages = [
-				"https://i.imgur.com/8d6WbRJ.gif"
-			];
+                categoryCommands.get(categoryName).push(`${circularSymbol} ${name}`);
+        }
 
+        for (const [category, commands] of categoryCommands) {
+                msg += `》✨🐇─⊰【${category}】⊱🍥✨\n🌸「${commands.join(" ")}」\n\n`;
+        }
 
-			const helpListImage = helpListImages[Math.floor(Math.random() * helpListImages.length)];
+        message.reply(getLang("help2", msg, commands.size, prefix, doNotDelete));
+}
+                }
+                // ———————————— COMMAND DOES NOT EXIST ———————————— //
+                else if (!command && args[0]) {
+                        return message.reply(getLang("commandNotFound", args[0]));
+                }
+                // ————————————————— INFO COMMAND ————————————————— //
+                else {
+                        const formSendMessage = {};
+                        const configCommand = command.config;
 
+                        let guide = configCommand.guide?.[langCode] || configCommand.guide?.["en"];
+                        if (guide == undefined)
+                                guide = customLang[configCommand.name]?.guide?.[langCode] || customLang[configCommand.name]?.guide?.["en"];
 
-			await message.reply({
-					body: msg,
-					attachment: await global.utils.getStreamFromURL(helpListImage)
-			});
-	} else {
-			const commandName = args[0].toLowerCase();
-			const command = commands.get(commandName) || commands.get(aliases.get(commandName));
+                        guide = guide || {
+                                body: ""
+                        };
+                        if (typeof guide == "string")
+                                guide = { body: guide };
+                        const guideBody = guide.body
+                                .replace(/\{prefix\}|\{p\}/g, prefix)
+                                .replace(/\{name\}|\{n\}/g, configCommand.name)
+                                .replace(/\{pn\}/g, prefix + configCommand.name);
 
-			if (!command) {
-				await message.reply(`Command "${commandName}" not found.`);
-			} else {
-				const configCommand = command.config;
-				const roleText = roleTextToString(configCommand.role);
-				const author = configCommand.author || "Unknown";
+                        const aliasesString = configCommand.aliases ? configCommand.aliases.join(", ") : getLang("doNotHave");
+                        const aliasesThisGroup = threadData.data.aliases ? (threadData.data.aliases[configCommand.name] || []).join(", ") : getLang("doNotHave");
 
-				const longDescription = configCommand.longDescription ? configCommand.longDescription.en || "No description" : "No description";
+                        let roleOfCommand = configCommand.role;
+                        let roleIsSet = false;
+                        if (threadData.data.setRole?.[configCommand.name]) {
+                                roleOfCommand = threadData.data.setRole[configCommand.name];
+                                roleIsSet = true;
+                        }
 
-				const guideBody = configCommand.guide?.en || "No guide available.";
-				const usage = guideBody.replace(/{p}/g, prefix).replace(/{n}/g, configCommand.name);
+                        const roleText = roleOfCommand == 0 ?
+                                (roleIsSet ? getLang("roleText0setRole") : getLang("roleText0")) :
+                                roleOfCommand == 1 ?
+                                        (roleIsSet ? getLang("roleText1setRole") : getLang("roleText1")) :
+                                        getLang("roleText2");
 
-				const response = `╭▬▬〘🧜‍♀️𝗡𝗔𝗠𝗘🧜‍♀️〙▬▬🍥✨
-	▮ ${configCommand.name}
-	▮▬▬▬〘✨🍥𝗜𝗡𝗙𝗢🍥✨〙▬▬▬
-	▮ 🧜‍♀️𝗗𝗘𝗦𝗖𝗥𝗜𝗣𝗧𝗜𝗢𝗡: ${longDescription}
-	▮ 🧜‍♀️𝗢𝗧𝗛𝗘𝗥 𝗡𝗔𝗠𝗘𝗦: ${configCommand.aliases ? configCommand.aliases.join(", ") : "𝙳𝙾 𝙽𝙾𝚃 𝙷𝙰𝚅𝙴"}
-	▮ 🧜‍♀️𝗢𝗧𝗛𝗘𝗥 𝗡𝗔𝗠𝗘𝗦 𝗜𝗡 𝗬𝗢𝗨𝗥 𝗚𝗥𝗢𝗨𝗣: Do not have
-	▮ 🧜‍♀️𝗩𝗘𝗥𝗦𝗜𝗢𝗡: ${configCommand.version || "1.0"}
-	▮ 🧜‍♀️𝗥𝗢𝗟𝗘: ${roleText}
-	▮ 🧜‍♀️𝗧𝗜𝗠𝗘 𝗣𝗘𝗥 𝗖𝗠𝗗: ${configCommand.countDown || 1}s
-	▮ 🧜‍♀️𝗔𝗨𝗧𝗛𝗢𝗥: ${author}
-	▮▬▬▬〘✨🍥𝗨𝗦𝗔𝗚𝗘🍥✨〙▬▬▬
-	▮ ${usage}
-	▮▬▬▬〘✨🍥𝗡𝗢𝗧𝗘𝗦🍥✨〙▬▬▬
-	▮ The content inside <XXXXX> can be changed
-	▮ The content inside [a|b|c] is a or b or c
-	╰▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬🍥✨`;
+                        const author = configCommand.author;
+                        const descriptionCustomLang = customLang[configCommand.name]?.longDescription;
+                        let description = checkLangObject(configCommand.longDescription, langCode);
+                        if (description == undefined)
+                                if (descriptionCustomLang != undefined)
+                                        description = checkLangObject(descriptionCustomLang, langCode);
+                                else
+                                        description = getLang("doNotHave");
 
-				await message.reply(response);
-			}
-		}
-	},
+                        let sendWithAttachment = false ; // check subcommand need send with attachment or not
+
+                        if (args[1]?.match(/^-g|guide|-u|usage$/)) {
+                                formSendMessage.body = getLang("onlyUsage", guideBody.split("\n").join("\n│"));
+                                sendWithAttachment = true;
+                        }
+                        else if (args[1]?.match(/^-a|alias|aliase|aliases$/))
+                                formSendMessage.body = getLang("onlyAlias", aliasesString, aliasesThisGroup);
+                        else if (args[1]?.match(/^-r|role$/))
+                                formSendMessage.body = getLang("onlyRole", roleText);
+                        else if (args[1]?.match(/^-i|info$/))
+                                formSendMessage.body = getLang("onlyInfo", configCommand.name, description, aliasesString, aliasesThisGroup, configCommand.version, roleText, configCommand.countDown || 1, author || "");
+                        else {
+                                formSendMessage.body = getLang("getInfoCommand", configCommand.name, description, aliasesString, aliasesThisGroup, configCommand.version, roleText, configCommand.countDown || 1, author || "", `${guideBody.split("\n").join("\n│")}`);
+                                sendWithAttachment = true;
+                        }
+
+                        if (sendWithAttachment && guide.attachment) {
+                                if (typeof guide.attachment == "object" && !Array.isArray(guide.attachment)) {
+                                        const promises = [];
+                                        formSendMessage.attachment = [];
+
+                                        for (const keyPathFile in guide.attachment) {
+                                                const pathFile = path.normalize(keyPathFile);
+
+                                                if (!fs.existsSync(pathFile)) {
+                                                        const cutDirPath = path.dirname(pathFile).split(path.sep);
+                                                        for (let i = 0; i < cutDirPath.length; i++) {
+                                                                const pathCheck = `${cutDirPath.slice(0, i + 1).join(path.sep)}${path.sep}`; // create path
+                                                                if (!fs.existsSync(pathCheck))
+                                                                        fs.mkdirSync(pathCheck); // create folder
+                                                        }
+                                                        const getFilePromise = axios.get(guide.attachment[keyPathFile], { responseType: 'arraybuffer' })
+                                                                .then(response => {
+                                                                        fs.writeFileSync(pathFile, Buffer.from(response.data));
+                                                                });
+
+                                                        promises.push({
+                                                                pathFile,
+                                                                getFilePromise
+                                                        });
+                                                }
+                                                else {
+                                                        promises.push({
+                                                                pathFile,
+                                                                getFilePromise: Promise.resolve()
+                                                        });
+                                                }
+                                        }
+
+                                        await Promise.all(promises.map(item => item.getFilePromise));
+                                        for (const item of promises)
+                                                formSendMessage.attachment.push(fs.createReadStream(item.pathFile));
+                                }
+                        }
+
+                        return message.reply(formSendMessage);
+                }
+        }
 };
 
-function roleTextToString(roleText) {
-	switch (roleText) {
-		case 0:
-			return "0 (All users)";
-		case 1:
-			return "1 (Group administrators)";
-		case 2:
-			return "2 (Admin bot)";
-		default:
-			return "Unknown role";
-	}
+function checkLangObject(data, langCode) {
+        if (typeof data == "string")
+                return data;
+        if (typeof data == "object" && !Array.isArray(data))
+                return data[langCode] || data.en || undefined;
+        return undefined;
+}
+
+function cropContent(content, max) {
+        if (content.length > max) {
+                content = content.slice(0, max - 3);
+                content = content + "...";
+        }
+        return content;
 }
