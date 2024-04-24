@@ -31,7 +31,7 @@ module.exports = {
     try {
       api.sendMessage("Generating...", threadID, messageID);
 
-      const r = await axios.get("https://free-api.ainz-sama101.repl.co/canvas/remini?", {
+      const r = await axios.get("https://combineapi-7fa2b2874c53 .herokuapp.com/api/try/remini?url=", {
         params: {
           url: encodeURI(t),
         },
