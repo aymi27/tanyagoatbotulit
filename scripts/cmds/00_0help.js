@@ -7,7 +7,7 @@ const doNotDelete = "﹝ 🧜‍♀️| 𝗧𝗔𝗡𝗬𝗔  ﹞"; // changing 
 
 module.exports = {
   config: {
-    name: "help",
+    name: "help2",
     version: "1.17",
     author: "aminulsordar", // original author Kshitiz 
     countDown: 5,
