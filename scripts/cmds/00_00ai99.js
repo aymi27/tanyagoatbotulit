@@ -59,7 +59,7 @@ async function ai({ message: m, event: e, args: a, usersData: u }) {
 
 module.exports = {
 	config: {
-		name: "tanya99",
+		name: "yani99",
 		aliases: [],
 		version: 1.6,
 		author: "Jun",
